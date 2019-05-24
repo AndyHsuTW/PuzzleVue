@@ -40,7 +40,6 @@
   export default {
     data: function () {
       return {
-        msg: "Hello World",
         Resolution: {
           Width: -1,
           Height: -1
