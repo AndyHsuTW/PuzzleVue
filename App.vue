@@ -7,14 +7,14 @@
 
     <view style="flex:4;">
       <!-- rows -->
-      <view class="containerHoriz" v-for="i in PuzzleDimension" v-bind:key="i" v-bind:style="{height:PuzzleBox.Size}">
+      <view class="containerHoriz" v-for="(puzzleBoxRow,i) in PuzzleBoxes" v-bind:key="i" v-bind:style="{height:PuzzleBox.Size}">
         <!-- puzzle boxes -->
-        <touchableOpacity v-for="j in PuzzleDimension" v-bind:key="j"
-          v-bind:class="[SelectedPuzzleIndex!=((i-1)*PuzzleDimension+j)?'puzzleBox':'puzzleBoxSelected','border']"
+        <touchableOpacity v-for="(puzzleBox,j) in puzzleBoxRow" v-bind:key="j"
+          v-bind:class="[puzzleBox.IsSelected?'puzzleBoxSelected':'puzzleBox','border']"
           v-bind:style="{width:PuzzleBox.Size,height:PuzzleBox.Size}"
-          v-on:press="OnPuzzleBoxPressed(((i-1)*PuzzleDimension+j))">
+          v-on:press="OnPuzzleBoxPressed(i,j)">
           <text>
-            {{(i-1)*PuzzleDimension+j}}
+            {{i}} {{j}}
           </text>
         </touchableOpacity>
       </view>
@@ -40,26 +40,49 @@
   export default {
     data: function () {
       return {
-        Resolution: {
-          Width: -1,
+        msg:"hello VUE v05300000",
+        Resolution: {// Screen size
+          Width: -1, 
           Height: -1
         },
         PuzzleBox: {
-          Size: 0
+          Size: 0 // box width and height
         },
+        PuzzleBoxes:[], // properties of each puzzle box
         PuzzleDimension: 9, // 9x9
-        SelectedPuzzleIndex:-1,
+        SelectedPuzzleBox:null,
       }
     },
     methods: {
-      OnPuzzleBoxPressed: function (pressedIndex) {
-        this.SelectedPuzzleIndex = pressedIndex;
+      OnPuzzleBoxPressed: function (rowIndex, columnIndex) {
+        if(this.SelectedPuzzleBox){
+          this.SelectedPuzzleBox.IsSelected=false;
+        }
+        this.SelectedPuzzleBox = this.PuzzleBoxes[rowIndex][columnIndex];
+        this.SelectedPuzzleBox.IsSelected = true;
+      }
+    },
+    created:function(){
+      // prepare puzzle boxes
+      console.log(this.PuzzleDimension);
+      for(var i=0;i<this.PuzzleDimension;i++){
+        var boxRow = [];
+        console.log(i);
+        for (var j=0;j<this.PuzzleDimension;j++){
+          console.log(j);
+          var boxProperties={
+            IsSelected:false
+          };
+          boxRow.push(boxProperties);
+        }
+          this.PuzzleBoxes.push(boxRow);
       }
     },
     mounted: function () {
       this.Resolution.Width = Dimensions.get('window').width;
       this.Resolution.Height = Dimensions.get('window').height;
       this.PuzzleBox.Size = WidthPercentage((90.0 / this.PuzzleDimension) + "%");
+     
     }
   }
 </script>
@@ -70,6 +93,7 @@
     justify-content: center;
     flex: 1;
     flex-direction: column;
+    padding-top: 5px;
   }
 
   .border {
