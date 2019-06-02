@@ -50,11 +50,12 @@
 
 <script>
 import { Dimensions } from "react-native";
-import { Accelerometer } from "expo";
+import { Accelerometer, Asset, FileSystem } from "expo";
 import {
   widthPercentageToDP as WidthPercentage,
   heightPercentageToDP as HeightPercentage
 } from "react-native-responsive-screen";
+import { Csv } from "csv-parser";
 
 export default {
   data: function() {
@@ -121,12 +122,31 @@ export default {
     }
   },
   mounted: function() {
+    var vue = this;
     this.Resolution.Width = Dimensions.get("window").width;
     this.Resolution.Height = Dimensions.get("window").height;
     this.PuzzleBoxSettings.Size = WidthPercentage(
       90.0 / this.PuzzleDimension + "%"
     );
     this.IsInitialed = true;
+    console.log("mounted");
+    var classesCsv = Asset.fromModule(require("./assets/classes.csv"));
+    console.log("Url:" + classesCsv.uri);
+    classesCsv.downloadAsync().then(function() {
+      console.log(classesCsv.localUri);
+
+      var results = [];
+      FileSystem.readAsStringAsync(classesCsv.localUri)
+        .pipe(csv())
+        .on("data", data => results.push(data))
+        .on("end", () => {
+          console.log(results);
+          // [
+          //   { NAME: 'Daffy Duck', AGE: '24' },
+          //   { NAME: 'Bugs Bunny', AGE: '22' }
+          // ]
+        });
+    });
   }
 };
 </script>
