@@ -9,8 +9,8 @@
     "build:android": "expo build:android"
   },
   "dependencies": {
-    "csv-parser": "^2.3.0",
     "expo": "^32.0.0",
+    "papaparse": "^5.0.0",
     "react": "16.5.0",
     "react-native": "https://github.com/expo/react-native/archive/sdk-32.0.0.tar.gz",
     "vue-native-core": "0.0.8",

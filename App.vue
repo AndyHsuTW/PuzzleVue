@@ -18,14 +18,17 @@
           v-for="(puzzleBox,j) in puzzleBoxRow"
           v-bind:key="j"
           v-bind:class="[puzzleBox.IsSelected?'puzzleBoxSelected':'puzzleBox','border']"
-          v-bind:style="{width:PuzzleBoxSettings.Size,height:PuzzleBoxSettings.Size}"
+          v-bind:style="{width:PuzzleBoxSettings.Size,
+            height:PuzzleBoxSettings.Size,
+            opacity:puzzleBox.IsShow?1:0}"
+          v-bind:disabled="puzzleBox.IsShow?false:true"
           v-on:press="OnPuzzleBoxPressed(puzzleBox)"
         >
           <text>{{puzzleBox.Text}}</text>
         </touchableOpacity>
       </view>
     </view>
-    <view class="containerVert" style="flex: 2;">
+    <view name="PuzzleOptions" class="containerVert" style="flex: 2;">
       <!-- rows -->
       <view
         class="containerHoriz"
@@ -55,7 +58,7 @@ import {
   widthPercentageToDP as WidthPercentage,
   heightPercentageToDP as HeightPercentage
 } from "react-native-responsive-screen";
-import { Csv } from "csv-parser";
+import * as Papaparse from "papaparse";
 
 export default {
   data: function() {
@@ -93,6 +96,7 @@ export default {
   },
   created: function() {
     // prepare puzzle boxes
+    var puzzleBoxes = [];
     for (var i = 0; i < this.PuzzleDimension; i++) {
       var boxRow = [];
       for (var j = 0; j < this.PuzzleDimension; j++) {
@@ -103,9 +107,9 @@ export default {
         };
         boxRow.push(boxProperties);
       }
-      this.PuzzleBoxes.push(boxRow);
+      puzzleBoxes.push(boxRow);
     }
-
+    this.PuzzleBoxes = puzzleBoxes;
     //puzzle options
     var optionIndex = 0;
     for (var i = 0; i < 2; i++) {
@@ -129,23 +133,33 @@ export default {
       90.0 / this.PuzzleDimension + "%"
     );
     this.IsInitialed = true;
-    console.log("mounted");
+    //下載關卡資料
     var classesCsv = Asset.fromModule(require("./assets/classes.csv"));
     console.log("Url:" + classesCsv.uri);
     classesCsv.downloadAsync().then(function() {
       console.log(classesCsv.localUri);
-
-      var results = [];
-      FileSystem.readAsStringAsync(classesCsv.localUri)
-        .pipe(csv())
-        .on("data", data => results.push(data))
-        .on("end", () => {
-          console.log(results);
-          // [
-          //   { NAME: 'Daffy Duck', AGE: '24' },
-          //   { NAME: 'Bugs Bunny', AGE: '22' }
-          // ]
+      //讀取關卡資料
+      FileSystem.readAsStringAsync(classesCsv.localUri).then(function(data) {
+        Papaparse.parse(data, {
+          complete: function(csvJson) {
+            var puzzleArray = csvJson.data;
+            //設定關卡資料
+            for (var i in puzzleArray) {
+              if (i >= vue.PuzzleDimension) break;
+              var row = puzzleArray[i];
+              for (var j in row) {
+                var puzzleWord = row[j];
+                if (puzzleWord != "") {
+                  vue.PuzzleBoxes[i][j].Text = puzzleWord;
+                } else {
+                  vue.PuzzleBoxes[i][j].IsShow = false;
+                }
+              }
+            }
+            console.log(csvJson);
+          }
         });
+      });
     });
   }
 };
