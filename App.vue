@@ -95,21 +95,22 @@ export default {
     }
   },
   created: function() {
+    var vue = this;
     // prepare puzzle boxes
-    var puzzleBoxes = [];
     for (var i = 0; i < this.PuzzleDimension; i++) {
       var boxRow = [];
       for (var j = 0; j < this.PuzzleDimension; j++) {
         var boxProperties = {
           IsSelected: false,
+          IsShow: true,
+          IsUserInput: true,
           Text: `${i},${j}`,
-          IsShow: true
+          Answer: null
         };
         boxRow.push(boxProperties);
       }
-      puzzleBoxes.push(boxRow);
+      this.PuzzleBoxes.push(boxRow);
     }
-    this.PuzzleBoxes = puzzleBoxes;
     //puzzle options
     var optionIndex = 0;
     for (var i = 0; i < 2; i++) {
@@ -124,15 +125,7 @@ export default {
       }
       this.PuzzleBoxOptions.push(boxRow);
     }
-  },
-  mounted: function() {
-    var vue = this;
-    this.Resolution.Width = Dimensions.get("window").width;
-    this.Resolution.Height = Dimensions.get("window").height;
-    this.PuzzleBoxSettings.Size = WidthPercentage(
-      90.0 / this.PuzzleDimension + "%"
-    );
-    this.IsInitialed = true;
+
     //下載關卡資料
     var classesCsv = Asset.fromModule(require("./assets/classes.csv"));
     console.log("Url:" + classesCsv.uri);
@@ -149,6 +142,28 @@ export default {
               var row = puzzleArray[i];
               for (var j in row) {
                 var puzzleWord = row[j];
+                // auto pick options
+                var candifateX1, candifateX2, candifateY1, candifateY2;
+                var isUserInput = false;
+                // left+up
+                candifateX1 = i;
+                candifateY1 = j - 1;
+                candifateX2 = i - 1;
+                candifateY2 = j;
+                if (
+                  !isUserInput &&
+                  candifateX1 > 0 &&
+                  candifateY1 > 0 &&
+                  candifateX2 > 0 &&
+                  candifateY2 > 0
+                ) {
+                }
+                // left+down
+
+                // right+up
+
+                //right+down
+
                 if (puzzleWord != "") {
                   vue.PuzzleBoxes[i][j].Text = puzzleWord;
                 } else {
@@ -157,10 +172,19 @@ export default {
               }
             }
             console.log(csvJson);
+            vue.IsInitialed = true;
           }
         });
       });
     });
+  },
+  mounted: function() {
+    var vue = this;
+    this.Resolution.Width = Dimensions.get("window").width;
+    this.Resolution.Height = Dimensions.get("window").height;
+    this.PuzzleBoxSettings.Size = WidthPercentage(
+      90.0 / this.PuzzleDimension + "%"
+    );
   }
 };
 </script>
