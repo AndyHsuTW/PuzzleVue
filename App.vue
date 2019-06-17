@@ -142,6 +142,10 @@ export default {
               var row = puzzleArray[i];
               for (var j in row) {
                 var puzzleWord = row[j];
+                if (puzzleWord == "") {
+                  vue.PuzzleBoxes[i][j].IsShow = false;
+                  continue;
+                }
                 // auto pick options
                 var candifateX1, candifateX2, candifateY1, candifateY2;
                 var isUserInput = false;
@@ -152,11 +156,14 @@ export default {
                 candifateY2 = j;
                 if (
                   !isUserInput &&
-                  candifateX1 > 0 &&
-                  candifateY1 > 0 &&
-                  candifateX2 > 0 &&
-                  candifateY2 > 0
+                  Math.min(candifateX1, candifateY1, candifateX2, candifateY2) >
+                    0
                 ) {
+                  var wordLeft = puzzleArray[candifateX1][candifateY1];
+                  var wordUp = puzzleArray[candifateX2][candifateY2];
+                  if (wordLeft != "" && wordUp != "") {
+                    isUserInput = true;
+                  }
                 }
                 // left+down
 
