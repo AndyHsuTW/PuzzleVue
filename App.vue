@@ -176,6 +176,9 @@ export default {
                 } else {
                   vue.PuzzleBoxes[i][j].IsShow = false;
                 }
+                if(isUserInput){
+                  vue.PuzzleBoxes[i][j].Text+="*";
+                }
               }
             }
             console.log(csvJson);

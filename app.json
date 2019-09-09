@@ -25,11 +25,12 @@
     "ios": {
       "supportsTablet": true
     },
-    "android":{
-      "package":"com.andyhsu.IdiomPuzzle"
+    "android": {
+      "package": "com.andyhsu.IdiomPuzzle"
     },
     "packagerOpts": {
       "config": "metro.config.js"
-    }
+    },
+    "description": ""
   }
 }
